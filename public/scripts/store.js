@@ -60,7 +60,7 @@ define(function(require) {
         + 'cp.sendRecurringMeterValues = false;\n'
         + 'cp.currentMeterValue = 0;\n'
         + 'cp.connectorIdForTx = 1;\n'
-        + 'cp.incrementAndGetCurrentMeterValue = (amount) => { cp.currentMeterValue += amount; return String(cp.currentMeterValue); };\n'
+        + 'cp.incrementAndGetCurrentMeterValue = (amount) => { cp.currentMeterValue += amount; return cp.currentMeterValue; };\n'
         + 'const heartbeatFunction = async () => { try { if(cp.sendRecurringHeartbeats) { await cp.sendHeartbeat(); } } catch (e) { console.log(e); } heartbeatInterval = setTimeout(heartbeatFunction, 60000); }\n'
         + 'let heartbeatInterval = setTimeout(heartbeatFunction, 60000);\n'
         + 'const meterValueFunction = async () => { try { if(cp.transaction != null && cp.sendRecurringMeterValues) { await cp.meterValues({connectorId: cp.connectorIdForTx, transactionId: cp.transaction.transactionId, meterValue: [{ timestamp: new Date().toISOString() , sampledValue: [{value: String(cp.incrementAndGetCurrentMeterValue(10)) }] }]}); } } catch (e) { console.log(e); } meterValueInterval = setTimeout(meterValueFunction, 60000); }\n'
@@ -73,24 +73,24 @@ define(function(require) {
           'await cp.sendStatusNotification({connectorId: 1, errorCode: "NoError", status: "Available"});\n';
       },
       authorize(state) {
-        state.inputText += 'await cp.sendAuthorize({idTag: "ccc"});\n' +
+        state.inputText += 'await cp.sendAuthorize({idTag: "NO.000000322478"});\n' +
           'await cp.sendStatusNotification({connectorId: 1, errorCode: "NoError", status: "Preparing"});\n';
       },
       startTransaction(state) {
         state.inputText += 'cp.connectorIdForTx = 1;\n' +
-          'cp.transaction = await cp.startTransaction({connectorId: cp.connectorIdForTx, idTag: "ccc", meterStart: cp.incrementAndGetCurrentMeterValue(0), timestamp: "' + new Date().toISOString() + '"});\n' +
+          'cp.transaction = await cp.startTransaction({connectorId: cp.connectorIdForTx, idTag: "NO.000000322478", meterStart: cp.incrementAndGetCurrentMeterValue(0), timestamp: "' + new Date().toISOString() + '"});\n' +
           'await cp.sendStatusNotification({connectorId: cp.connectorIdForTx, errorCode: "NoError", status: "Charging"});\n';
       },
       stopTransaction(state) {
         state.inputText += 'await cp.stopTransaction({transactionId: cp.transaction.transactionId, meterStop: cp.incrementAndGetCurrentMeterValue(10), timestamp: "'
-          + new Date().toISOString() + '"});\n' +
+          + new Date().toISOString() + '", reason: "Local"});\n' +
           'cp.transaction = null;\n' +
           'await cp.sendStatusNotification({connectorId: cp.connectorIdForTx, errorCode: "NoError", status: "Finishing"});\n'
           +
           'await cp.sendStatusNotification({connectorId: cp.connectorIdForTx, errorCode: "NoError", status: "Available"});\n';
       },
       meterValues(state) {
-        state.inputText += 'await cp.meterValues({connectorId: cp.connectorIdForTx, transactionId: cp.transaction.transactionId, meterValue: [{ timestamp: "' + new Date().toISOString() + '", sampledValue: [{value: cp.incrementAndGetCurrentMeterValue(10)}] }]});\n';
+        state.inputText += 'await cp.meterValues({connectorId: cp.connectorIdForTx, transactionId: cp.transaction.transactionId, meterValue: [{ timestamp: "' + new Date().toISOString() + '", sampledValue: [{value: String(cp.incrementAndGetCurrentMeterValue(10))}] }]});\n';
       },
       updateWsStatus(state, value) {
         if (state.wsStatusLastId <= value.id) {

@@ -13,7 +13,7 @@ cp.currentMeterValue = 0;
 cp.connectorIdForTx = 1;
 cp.incrementAndGetCurrentMeterValue = (amount) => {
   cp.currentMeterValue += amount;
-  return String(cp.currentMeterValue);
+  return cp.currentMeterValue;
 };
 
 // Activate sending periodic Heartbeats
@@ -130,7 +130,7 @@ cp.answerRemoteStartTransaction(async (request) => {
       transactionId: cp.transaction.transactionId,
       meterValue: [{
         timestamp: new Date().toISOString(),
-        sampledValue: [{ value: cp.incrementAndGetCurrentMeterValue(10) }],
+        sampledValue: [{ value: String(cp.incrementAndGetCurrentMeterValue(10)) }],
       }],
     });
   }
@@ -141,6 +141,7 @@ cp.answerRemoteStopTransaction(async (request) => {
     transactionId: cp.transaction.transactionId,
     meterStop: cp.incrementAndGetCurrentMeterValue(10),
     timestamp: new Date().toISOString(),
+    reason: 'Local',
   });
   cp.transaction = null;
   await cp.sendStatusNotification({ connectorId: 1, errorCode: 'NoError', status: 'Finishing' });
